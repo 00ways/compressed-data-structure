@@ -36,8 +36,8 @@ target_link_libraries(${PROJECT_NAME} PUBLIC CDS)
 
 int main(int argc, char* const argv[]) {
   cdsmap* map = cdsMapFile("file.cds");
-  char* texta = cdsMapReadFile(map, /* 16 chars long or less*/ "helloa.txt");
-  char* textb = cdsMapReadFile(map, /* 16 chars long or less*/ "hellob.txt");
+  char* texta = cdsMapReadFile(map, "helloa.txt");
+  char* textb = cdsMapReadFile(map, "hellob.txt");
   printf("texta: %s");
   printf("textb: %s");
   free(texta);
