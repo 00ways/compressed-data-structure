@@ -60,7 +60,7 @@ static int fwriteSized(FILE* stream, enum cdsSize size, uint64_t* data) {
     }
     return 0;
 }
-static int freadSized(uint64_t* data, enum cdsSize size, FILE* stream) {
+static size_t freadSized(uint64_t* data, enum cdsSize size, FILE* stream) {
     return fread(data, size, 1, stream);
 }
 static int skipSized(FILE* stream, enum cdsSize size) {
@@ -134,8 +134,13 @@ cdsmap* cdsMapFile(const char* filename) {
     map->recordCount = recordCount;
     fclose(fptr);
     printf("map %s:\n", map->filename);
+    #ifdef _WIN32
+    printf("Origin: %lld\n", map->origin);
+    printf("Records: %lld\n", map->recordCount);
+    #else
     printf("Origin: %ld\n", map->origin);
     printf("Records: %ld\n", map->recordCount);
+    #endif
     return map;
 }
 cdsmap* cdsMapCreate(const char* filename, int recordcount) {
@@ -224,7 +229,11 @@ int cdsMapWriteFileHeader(cdsmap* map, FILE** pfptr) {
         printf("Unable to write file\n");
         return 1;
     }
+    #ifdef _WIN32
+    printf("[write] recordCount: %lld\n", map->recordCount);
+    #else
     printf("[write] recordCount: %ld\n", map->recordCount);
+    #endif
     enum cdsSize size;
     if (map->recordCount > UINT32_MAX) size = BYTE_8;
     else if (map->recordCount > UINT16_MAX) size = BYTE_4;
