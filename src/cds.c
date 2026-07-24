@@ -253,7 +253,11 @@ char* cdsMapToString(cdsmap* map) {
     char* buffer = calloc(map->recordCount * (1 + 16 + 1 + 8 + 3 + 8), sizeof(char));
     uint64_t offset = 0;
     while (cursor != NULL) {
+        #ifdef WIN32
+        sprintf(buffer, "%s\n%s %I64d + %I64d", buffer, cursor->filename, offset, cursor->length);
+        #else
         sprintf(buffer, "%s\n%s %ld + %ld", buffer, cursor->filename, offset, cursor->length);
+        #endif
         offset += cursor->length;
         cursor = cursor->next;
     }
