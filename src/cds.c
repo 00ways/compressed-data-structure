@@ -6,6 +6,11 @@
 #include <string.h>
 #include <stddef.h>
 
+#if !defined(max) || !defined(min)
+#define max(a, b) (a > b ? a : b)
+#define min(a, b) (a < b ? a : b)
+#endif
+
 static const char magicNumber[2] = {
     0xCD,
     0x50
@@ -43,7 +48,11 @@ static int fwriteSized(FILE* stream, enum cdsSize size, uint64_t* data) {
             return 1;
         return 0;
     case BYTE_8: 
+    #ifdef WIN32
+        printf("writing bytes: 8(%02llX)\n", d.u64);
+    #else
         printf("writing bytes: 8(%02lX)\n", d.u64);
+    #endif
         if (fwrite(&(d.u64), sizeof(uint64_t), 1, stream) < 1)
             return 1;
         return 0;
@@ -62,8 +71,6 @@ static int skipSized(FILE* stream, enum cdsSize size) {
     }
     return 0;
 }
-#define max(a, b) (a > b ? a : b)
-#define min(a, b) (a < b ? a : b)
 struct cdsRecord {
     char* filename;
     uint64_t length;
