@@ -2,7 +2,7 @@
 #define __00ways_cds_h
 
 #include <stdint.h>
-typedef struct _IO_FILE FILE;
+#include <stdio.h>
 typedef struct cdsmap cdsmap;
 
 cdsmap* cdsMapFile(const char* filename);

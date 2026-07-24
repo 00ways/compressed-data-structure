@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stddef.h>
+
 static const char magicNumber[2] = {
     0xCD,
     0x50
