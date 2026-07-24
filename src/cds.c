@@ -5,6 +5,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stddef.h>
+
+
+#if !defined(max) || !defined(min)
+#define max(a, b) (a > b ? a : b)
+#define min(a, b) (a < b ? a : b)
+#endif
+
 static const char magicNumber[2] = {
     0xCD,
     0x50
@@ -42,14 +49,18 @@ static int fwriteSized(FILE* stream, enum cdsSize size, uint64_t* data) {
             return 1;
         return 0;
     case BYTE_8: 
+    #ifdef _WIN32
+        printf("writing bytes: 8(%02llX)\n", d.u64);
+    #else
         printf("writing bytes: 8(%02lX)\n", d.u64);
+    #endif
         if (fwrite(&(d.u64), sizeof(uint64_t), 1, stream) < 1)
             return 1;
         return 0;
     }
     return 0;
 }
-static int freadSized(uint64_t* data, enum cdsSize size, FILE* stream) {
+static size_t freadSized(uint64_t* data, enum cdsSize size, FILE* stream) {
     return fread(data, size, 1, stream);
 }
 static int skipSized(FILE* stream, enum cdsSize size) {
@@ -61,8 +72,6 @@ static int skipSized(FILE* stream, enum cdsSize size) {
     }
     return 0;
 }
-#define max(a, b) (a > b ? a : b)
-#define min(a, b) (a < b ? a : b)
 struct cdsRecord {
     char* filename;
     uint64_t length;
@@ -125,8 +134,13 @@ cdsmap* cdsMapFile(const char* filename) {
     map->recordCount = recordCount;
     fclose(fptr);
     printf("map %s:\n", map->filename);
+    #ifdef _WIN32
+    printf("Origin: %lld\n", map->origin);
+    printf("Records: %lld\n", map->recordCount);
+    #else
     printf("Origin: %ld\n", map->origin);
     printf("Records: %ld\n", map->recordCount);
+    #endif
     return map;
 }
 cdsmap* cdsMapCreate(const char* filename, int recordcount) {
@@ -215,7 +229,11 @@ int cdsMapWriteFileHeader(cdsmap* map, FILE** pfptr) {
         printf("Unable to write file\n");
         return 1;
     }
+    #ifdef _WIN32
+    printf("[write] recordCount: %lld\n", map->recordCount);
+    #else
     printf("[write] recordCount: %ld\n", map->recordCount);
+    #endif
     enum cdsSize size;
     if (map->recordCount > UINT32_MAX) size = BYTE_8;
     else if (map->recordCount > UINT16_MAX) size = BYTE_4;
@@ -253,7 +271,11 @@ char* cdsMapToString(cdsmap* map) {
     char* buffer = calloc(map->recordCount * (1 + 16 + 1 + 8 + 3 + 8), sizeof(char));
     uint64_t offset = 0;
     while (cursor != NULL) {
+        #ifdef _WIN32
+        sprintf(buffer, "%s\n%s %I64d + %I64d", buffer, cursor->filename, offset, cursor->length);
+        #else
         sprintf(buffer, "%s\n%s %ld + %ld", buffer, cursor->filename, offset, cursor->length);
+        #endif
         offset += cursor->length;
         cursor = cursor->next;
     }
