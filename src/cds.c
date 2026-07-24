@@ -6,7 +6,7 @@
 #include <string.h>
 #include <stddef.h>
 
-#ifdef WIN32
+#ifdef _WIN32
 /* This code is public domain -- Will Hartung 4/9/09 */
 size_t getline(char **lineptr, size_t *n, FILE *stream) {
     char *bufptr = NULL;
@@ -103,7 +103,7 @@ static int fwriteSized(FILE* stream, enum cdsSize size, uint64_t* data) {
             return 1;
         return 0;
     case BYTE_8: 
-    #ifdef WIN32
+    #ifdef _WIN32
         printf("writing bytes: 8(%02llX)\n", d.u64);
     #else
         printf("writing bytes: 8(%02lX)\n", d.u64);
@@ -316,7 +316,7 @@ char* cdsMapToString(cdsmap* map) {
     char* buffer = calloc(map->recordCount * (1 + 16 + 1 + 8 + 3 + 8), sizeof(char));
     uint64_t offset = 0;
     while (cursor != NULL) {
-        #ifdef WIN32
+        #ifdef _WIN32
         sprintf(buffer, "%s\n%s %I64d + %I64d", buffer, cursor->filename, offset, cursor->length);
         #else
         sprintf(buffer, "%s\n%s %ld + %ld", buffer, cursor->filename, offset, cursor->length);
