@@ -48,8 +48,12 @@ int read() {
         printf("> ");
         if (getline(&line, &linesz, stdin) == -1) continue;
         
-        char* buffer = calloc(16, sizeof(char)), *ptr = buffer;
-        for (int i = 0; i < 16; i++) {
+        char* buffer = calloc(strlen(line) + 1, sizeof(char)), *ptr = buffer;
+        if (buffer == NULL) {
+            printf("Failed to create buffer\n");
+            continue;
+        }
+        for (int i = 0; i < strlen(line); i++) {
             if (line[i] == '\n') continue;
             if (line[i] == '\t') continue;
             *ptr ++ = line[i];
@@ -104,7 +108,7 @@ int write() {
         free(buffer);
     }
     cdsmap* map = cdsMapCreate(filename, filecount);
-    FILE* streamtmp = fopen(".tmp", "w+");
+    FILE* streamtmp = tmpfile();
     for (int i = 0; i < filecount; i++) {
         FILE* reader = fopen(files[i], "rb");
         fseek(reader, 0, SEEK_END);
@@ -129,13 +133,13 @@ int write() {
     long length = ftell(streamtmp);
     printf(".tmp length: %ld\n", length);
     fseek(streamtmp, 0, SEEK_SET);
+    rewind(streamtmp);
     char* buffer = calloc(length, sizeof(char));
     fread(buffer, sizeof(char) * length, 1, streamtmp);
     printf("copying temp: %s\n", buffer);
     fwrite(buffer, sizeof(char) * length, 1, target);
     fclose(target);
     fclose(streamtmp);
-    remove(".tmp");
     return 0;
 }
 
